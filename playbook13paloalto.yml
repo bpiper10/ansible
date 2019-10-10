@@ -1,0 +1,16 @@
+---
+- name: Our first Palo Alto playbook
+  hosts: localhost
+  gather_facts: yes
+
+  roles:
+          - paloaltonetworks.paloaltonetworks  ## This will create an environment, install the middle man code, run the playbook and then get rid of it
+
+  tasks:
+          - name: Try to use the Panos address group
+            panos_address_group:
+                    provider: '{{ provider }}'
+                    name: 'SI'
+                    dynamic_value: "'SI_Instances'"
+                    tag: ['SI']
+                   

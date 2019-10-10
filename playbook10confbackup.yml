@@ -1,7 +1,7 @@
 ---
 - name: Playbook to harvest and backup config
   hosts: eosswitches
-  gather_facts: no     ## <-- make this yes later on so we can get date/time info
+  gather_facts: yes    ## This makes all variable available with "ansible" in front of them
   connection: network_cli
 
   tasks:
@@ -24,3 +24,9 @@
             copy:
                     dest: "~/ans/backup/{{ inventory_hostname }}.bkup"
                     content: "{{ ansible_facts.net_config }}"
+
+          - name: use archive to archive the backup 
+            archive:
+                    path: "~/ans/backup/{{ inventory_hostname }}.bkup"  ## Think of this as the source
+                    dest: "~/ans/backup/{{ inventory_hostname }}-{{ ansible_date_time.iso8601_basic }}.bkup.gz"  ## Thing of this as "what do you want it to be called
+                    remove: yes

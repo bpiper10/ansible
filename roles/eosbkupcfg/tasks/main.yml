@@ -1,0 +1,26 @@
+---
+- name: gather facts on eos switch
+  eos_facts:
+          gather_subset: all
+  become: yes
+          
+- name: create a directory for backing up configs
+  file:
+          path: ~/ans/backup
+          state: directory
+
+- name: what the heck is in ansible_facts
+  debug:
+          var: ansible_facts
+          verbosity: 1
+
+- name: use copy to evac info from playbook to controller
+  copy:
+          dest: "~/ans/backup/{{ inventory_hostname }}.bkup"
+          content: "{{ ansible_facts.net_config }}"
+
+- name: use archive to archive the backup 
+  archive:
+          path: "~/ans/backup/{{ inventory_hostname }}.bkup"  ## Think of this as the source
+          dest: "~/ans/backup/{{ inventory_hostname }}-{{ ansible_date_time.iso8601_basic }}.bkup.gz"  ## Thing of this as "what do you want it to be called
+          remove: yes

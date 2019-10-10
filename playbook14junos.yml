@@ -1,0 +1,47 @@
+---
+
+- name: Install pre-req on controller before running
+  hosts: localhost
+  connection: local
+  tasks:
+          - name: install the ncclient so juniper.junos can work
+            pip:
+                    name: ncclient
+            delegate_to: localhost
+
+- name: Writing playbooks for Juniper
+  hosts: JuniperSwitchesWest
+  connection: netconf
+
+  vars:
+          creds:
+                  host: "{{ ansible_host }}"
+                  port: "{{ ansible_port }}"
+                  password: "{{ hostpass }}"
+ 
+
+  roles:
+          - juniper.junos          ## We are absorbing this library so we can run juniper_junos_facts below
+
+  tasks:
+          # an alternatvie to this method would be running this command ourselves
+          # at the CLI and 'forever' installing ncclient.  The method below
+          # will deploy 'ncclient' within a virtualenv, and be thrownout after runtime
+
+          - name: install the ncclient so juniper.junos can work
+            pip:
+                    name: ncclient
+            delegate_to: localhost
+
+          - name: ensure the output directory exists
+            file:
+                    state: directory
+                    path: ~/output/
+            delegate_to: localhost
+
+          - name: Testing out a juniper module          
+            juniper_junos_facts:
+                    provider: "{{ creds }}"
+                    savedir: ~/output/
+                    config_format: json
+
